@@ -120,9 +120,12 @@ public class CommandLine implements PegGame {
         char[][] board = ReadtheFile.getBoard();
         if(board != null)
         {
-            for(char[] row: board){for (char cell: row){System.out.println(cell+" ");}
-            System.out.println();}
-        }
+            for (int i = 0; i < board.length; i++) {
+                for (int j = 0; j < board[i].length; j++) {
+                    System.out.print(board[i][j] + " ");
+                }
+                System.out.println();}
+        }   
         else {System.out.println("Error: The board is not availiable...");}
     }
 
@@ -152,7 +155,7 @@ public class CommandLine implements PegGame {
       if(!possibleMoves.isEmpty()){System.out.println("The Possible Moves:"); 
          for(Move move: possibleMoves){System.out.println("Move: "+move);}}
     
-    else {System.out.println("Oops! No possible moves availiable. \nGame Over.");} 
+    else {System.out.println("Oops! No possible moves available. \nGame Over.");} 
     }
 
     /*
