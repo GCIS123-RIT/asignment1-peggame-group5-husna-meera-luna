@@ -34,13 +34,25 @@ public class CommandLine implements PegGame {
     @Override
     public Collection<Move> getPossibleMoves() {
         Collection<Move> possibleMoves = new ArrayList<>();
-        for (int row = 0; row < board.length; row++){for (int col = 0; col<board[row].length; col++){
-            if (col + 2 < board[row].length && board[row][col]=='o' && board[row][col+1]=='o' && board[row][col+2]=='.')
-            {possibleMoves.add(new Move(new Location(row, col), new Location(row, col + 2)));}
-            
-            if (row + 2 < board.length && board[row][col]=='o' && board[row+1][col]=='o' && board[row+2][col]=='.')
-            {possibleMoves.add(new Move(new Location(row, col), new Location(row + 2, col)));}
-        }}
+        int rows = board.length;
+        int cols = board[0].length;
+
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols - 2; col++) {
+                if (board[row][col] == 'o' && board[row][col + 1] == 'o' && board[row][col + 2] == '.') {
+                    possibleMoves.add(new Move(new Location(row, col), new Location(row, col + 2)));
+                }
+            }
+        }
+
+        for (int row = 0; row < rows - 2; row++) {
+            for (int col = 0; col < cols; col++) {
+                if (board[row][col] == 'o' && board[row + 1][col] == 'o' && board[row + 2][col] == '.') {
+                    possibleMoves.add(new Move(new Location(row, col), new Location(row + 2, col)));
+                }
+            }
+        }
+
         return possibleMoves;
     }
 
@@ -63,6 +75,7 @@ public class CommandLine implements PegGame {
         if (!PossibleMoves.isEmpty()){HasMoves = true;}
         
         if (PegCount == 0){return GameState.NOT_STARTED;}
+        
         else if (!HasMoves){if (PegCount == 1){return GameState.WON;} else {return GameState.STALEMATE;}}
         else {return GameState.IN_PROGRESS;}
     }
@@ -77,35 +90,49 @@ public class CommandLine implements PegGame {
      */
     @Override
     public void makeMove(Move move) throws PegGameException {
-    Location from = move.getFrom();
-    Location to = move.getTo();
+        Location from = move.getFrom();
+        Location to = move.getTo();
+        Location jumpLocation = getJumpLocation(from, to);
 
-    try {
-        if(board[from.getRow()][from.getColumn()] != 'o') {throw new PegGameException("Invalid move! \nNo peg at the start location");}
-        if (board[to.getRow()][to.getColumn()] != '.') {throw new PegGameException("Invalid move! \nDestination is not an empty hole");}
+        validateStartLocation(from);
+        validateEndLocation(to);
+        validateJumpLocation(jumpLocation);
 
-        int jumpCol;
-        if (from.getRow() == to.getRow() && from.getColumn() == to.getColumn() + 2 && board[from.getRow()][from.getColumn() - 1] == 'o')
-        {jumpCol = from.getColumn() - 1;}
+        // Perform the move on the board
+        board[from.getRow()][from.getColumn()] = '.';   // Remove the peg from the starting position
+        board[to.getRow()][to.getColumn()] = 'o';       // Place the peg at the destination position
+        board[jumpLocation.getRow()][jumpLocation.getColumn()] = '.'; // Remove the jumped-over peg
 
-        else if (from.getRow() == to.getRow() && from.getColumn() == to.getColumn() - 2 && board[from.getRow()][from.getColumn() + 1] == 'o')
-        {jumpCol = from.getColumn() + 1;}
+        // Update peg count
 
-        else if (from.getRow() == to.getRow() + 2 && board[from.getRow() - 1][from.getColumn()] == 'o') {jumpCol = from.getRow() - 1;}
+    }
 
-        else if (from.getRow() == to.getRow() - 2 && board[from.getRow() + 1][from.getColumn()] == 'o') {jumpCol = from.getRow() + 1;}
-
-        else {throw new PegGameException("Invalid move! \nNot a valid jump.");}
-
-        if (board[from.getRow()][jumpCol] != 'o') {
-            throw new PegGameException("Invalid Move! \nNot jumping over a peg.");
+    // Validate the start location of the move
+    private void validateStartLocation(Location from) throws PegGameException {
+        if (board[from.getRow()][from.getColumn()] != 'o') {
+            throw new PegGameException("No peg at the start location!");
         }
+    }
 
-        board[from.getRow()][from.getColumn()] = '.';
-        board[to.getRow()][to.getColumn()] = 'o';
-        board[from.getRow()][jumpCol] = '.';}
-    catch (PegGameException e){
-        System.out.println("Invalid move! " +" \n"+e.getMessage());}
+    // Validate the end location of the move
+    private void validateEndLocation(Location to) throws PegGameException {
+        if (board[to.getRow()][to.getColumn()] != '.') {
+            throw new PegGameException("Destination is not an empty hole!");
+        }
+    }
+
+    // Determine the jump location given the start and end locations
+    private Location getJumpLocation(Location from, Location to) {
+        int jumpRow = (from.getRow() + to.getRow()) / 2;
+        int jumpCol = (from.getColumn() + to.getColumn()) / 2;
+        return new Location(jumpRow, jumpCol);
+    }
+
+    // Validate the jump location (must contain a peg)
+    private void validateJumpLocation(Location jumpLocation) throws PegGameException {
+        if (board[jumpLocation.getRow()][jumpLocation.getColumn()] != 'o') {
+            throw new PegGameException("Not jumping over a peg!");
+        }
     }
 
 
@@ -116,18 +143,20 @@ public class CommandLine implements PegGame {
      * print its character representation.
      */
     private static void PrintBoard(PegGame pegGame){
-        System.out.println("The Current Board: ");
+        System.out.println("-- BOARD --");
         char[][] board = ReadtheFile.getBoard();
+
         if(board != null)
         {
-            for (int i = 0; i < board.length; i++) {
+            for(int i = 0; i < board.length; i++) {
                 for (int j = 0; j < board[i].length; j++) {
                     System.out.print(board[i][j] + " ");
                 }
-                System.out.println();}
-        }   
-        else {System.out.println("Error: The board is not availiable...");}
-    }
+                System.out.println();
+            }
+            System.out.println("");
+        }
+        else {System.out.println("Error: The board is not available..."); }}
 
     /*
      * This method prints the current state of the game based on the GameState enum value. 
@@ -155,7 +184,7 @@ public class CommandLine implements PegGame {
       if(!possibleMoves.isEmpty()){System.out.println("The Possible Moves:"); 
          for(Move move: possibleMoves){System.out.println("Move: "+move);}}
     
-    else {System.out.println("Oops! No possible moves available. \nGame Over.");} 
+    else {System.out.println("Oops! No possible moves availiable. \nGame Over.");} 
     }
 
     /*
