@@ -3,7 +3,6 @@
  the public class is only calling out the required statements 
  for the game to succesfully execute
  */
-package peggame;
 
 import java.util.Scanner;
 
@@ -36,4 +35,3 @@ public class Project1Main {
         CommandLine.PlayPegGame(pegGame, scanner);
     }
 }
-
