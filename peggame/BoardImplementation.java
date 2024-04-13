@@ -2,12 +2,12 @@
  * This is the board implementing, for this is where the layout of the game is built
  *  */
 package peggame;
-import org.junit.Test;
-import org.junit.platform.commons.annotation.Testable;
+/**
+ * This is the board implementing, for this is where the layout of the game is built
+ *  */
 import java.util.ArrayList;
 import java.util.Collection;
 
-@Testable
 public class BoardImplementation implements PegGame
 {/**This is a private instance variable that stores the board as a 2D array of characters. 
     Each character represents a cell on the board, 
@@ -27,19 +27,29 @@ public class BoardImplementation implements PegGame
     and checks if it meets the conditions for a possible move.
     If it does, it adds a new Move object to the possibleMoves collection.
     */
-    @Test
-    @Override
+
     public Collection<Move> getPossibleMoves() {
         Collection<Move> possibleMoves = new ArrayList<>();
-        for (int row = 0; row < board.length; row++){for (int col = 0; col<board[row].length; col++){
-            if (col + 2 < board[row].length && board[row][col]=='o' && board[row][col+1]=='o' && board[row][col+2]=='-')
-            {possibleMoves.add(new Move(new Location(row, col), new Location(row, col + 2)));}
+        int rows = board.length;
+        int cols = board[0].length;
 
-            if (row + 2 < board.length && board[row][col]=='o' && board[row+1][col]=='o' && board[row+2][col]=='-')
-            {possibleMoves.add(new Move(new Location(row, col), new Location(row + 2, col)));}
-        }}
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols - 2; col++) {
+                if (board[row][col] == 'o' && board[row][col + 1] == 'o' && board[row][col + 2] == '.') {
+                    possibleMoves.add(new Move(new Location(row, col), new Location(row, col + 2)));
+                }
+            }
+        }
 
-    return possibleMoves;
+        for (int row = 0; row < rows - 2; row++) {
+            for (int col = 0; col < cols; col++) {
+                if (board[row][col] == 'o' && board[row + 1][col] == 'o' && board[row + 2][col] == '.') {
+                    possibleMoves.add(new Move(new Location(row, col), new Location(row + 2, col)));
+                }
+            }
+        }
+
+        return possibleMoves;
     }
 
     /**
@@ -50,7 +60,7 @@ public class BoardImplementation implements PegGame
      * One can say based on these values, it returns the appropriate GameState enum value.
      */
 
-    @Override
+
     public GameState getGameState() {
        boolean HasMoves = false;
        int PegCount = 0;
@@ -70,23 +80,57 @@ public class BoardImplementation implements PegGame
      * If the move is invalid, it throws a PegGameException. 
      * It also removes the peg that was jumped over in the move.
      */
-    @Override
-    public void makeMove(Move move) throws PegGameException {
-       Location from = move.getFrom();
-       Location to = move.getTo();
-       
-       board[from.getRow()][from.getColumn()]='.';
-       board[to.getRow()][to.getColumn()]='o';
 
-       int jumpRow = (from.getRow() + to.getRow())/2;
-       int jumpColumn = (from.getColumn() + to.getColumn())/2;
-       board[jumpRow][jumpColumn]='.';
-    }
+     @Override
+     public void makeMove(Move move) throws PegGameException {
+         Location from = move.getFrom();
+         Location to = move.getTo();
+         Location jumpLocation = getJumpedPegLocation(from, to);
+ 
+         validateStartLocation(from);
+         validateEndLocation(to);
+         validateJumpLocation(jumpLocation);
+ 
+         // Perform the move on the board
+         board[from.getRow()][from.getColumn()] = '.';   // Remove the peg from the starting position
+         board[to.getRow()][to.getColumn()] = 'o';       // Place the peg at the destination position
+         board[jumpLocation.getRow()][jumpLocation.getColumn()] = '.'; // Remove the jumped-over peg
+ 
+         // Update peg count
+     }
+ 
+     // Validate the start location of the move
+     private void validateStartLocation(Location from) throws PegGameException {
+         if (board[from.getRow()][from.getColumn()] != 'o') {
+             throw new PegGameException("Peg doesn't exist in this spot.");
+         }
+     }
+ 
+     // Validate the end location of the move
+     private void validateEndLocation(Location to) throws PegGameException {
+         if (board[to.getRow()][to.getColumn()] != '.') {
+             throw new PegGameException("Watch it! There's already a peg there! Rude.");
+         }
+     }
+ 
+     // Determine the jump location given the start and end locations
+     private Location getJumpedPegLocation(Location from, Location to) {
+         int jumpRow = (from.getRow() + to.getRow()) / 2;
+         int jumpCol = (from.getColumn() + to.getColumn()) / 2;
+         return new Location(jumpRow, jumpCol);
+     }
+ 
+     // Validate the jump location (must contain a peg)
+     private void validateJumpLocation(Location jumpLocation) throws PegGameException {
+         if (board[jumpLocation.getRow()][jumpLocation.getColumn()] != 'o') {
+             throw new PegGameException("Not jumping over a peg!");
+         }
+     }
 
     /**
      * This method returns a string representation of the board.
      */
-    @Override
+
     public String toString(){
         StringBuilder SB = new StringBuilder();
         for (int row = 0; row < board.length; row++){for (int col = 0; col<board[row].length; col++)
