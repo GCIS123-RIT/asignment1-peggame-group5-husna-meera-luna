@@ -45,10 +45,12 @@ public class ReadtheFile {
             }
             scanner.close();
             return board;
+
         } catch (FileNotFoundException e) {
             System.err.println("File not found: " + filename);
             e.printStackTrace();
             return null;
+
         } catch (RuntimeException e) {
             System.err.println("Error parsing file: " + filename);
             e.printStackTrace();
@@ -64,10 +66,3 @@ public class ReadtheFile {
         return board;
     }
 }
-
-
-
-  
-
-
-
