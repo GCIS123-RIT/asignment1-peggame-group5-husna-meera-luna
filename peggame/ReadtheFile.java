@@ -1,7 +1,8 @@
 package peggame;
-
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class ReadtheFile {
@@ -57,7 +58,19 @@ public class ReadtheFile {
             return null;
         }
     }
-
+    public void writeBoardToFile(String filename) {
+        try (FileWriter writer = new FileWriter(filename, false)) { // false to overwrite the file
+            writer.write(board.length + "\n");
+            for (int i = 0; i < board.length; i++) {
+                for (int j = 0; j < board[i].length; j++) {
+                    writer.write(board[i][j]);
+                }
+                writer.write("\n"); // Newline after each row
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     /**
      * This method is established to retrieve the board array
      * @return the board
@@ -66,3 +79,10 @@ public class ReadtheFile {
         return board;
     }
 }
+
+
+
+  
+
+
+

@@ -1,3 +1,5 @@
+package peggame;
+
 /**
  *This class is the MAIN CLASS of the entire peggame 
  the public class is only calling out the required statements 
@@ -35,3 +37,4 @@ public class Project1Main {
         CommandLine.PlayPegGame(pegGame, scanner);
     }
 }
+

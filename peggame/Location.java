@@ -1,5 +1,4 @@
 package peggame;
-
 /**
  * In this class, we use rows and columns to display the board.
  * In able to  move to or from, we get our coordinations moving through the rows and columnns.

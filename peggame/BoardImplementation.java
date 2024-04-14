@@ -1,7 +1,5 @@
-/**
- * This is the board implementing, for this is where the layout of the game is built
- *  */
 package peggame;
+
 /**
  * This is the board implementing, for this is where the layout of the game is built
  *  */
@@ -12,7 +10,7 @@ public class BoardImplementation implements PegGame
 {/**This is a private instance variable that stores the board as a 2D array of characters. 
     Each character represents a cell on the board, 
     with 'o' representing a peg and '.' representing an empty hole. */
-    private char[][] board;
+    private static char[][] board;
 
     /***This is the constructor for the BoardImplementation class. 
      * It takes a 2D array of characters as input and 
@@ -82,10 +80,10 @@ public class BoardImplementation implements PegGame
      */
 
      @Override
-     public void makeMove(Move move) throws PegGameException {
+     public static void makeMove(Move move) throws PegGameException {
          Location from = move.getFrom();
          Location to = move.getTo();
-         Location jumpLocation = getJumpedPegLocation(from, to);
+         Location jumpLocation = getJumpLocation(from, to);
  
          validateStartLocation(from);
          validateEndLocation(to);
@@ -114,7 +112,7 @@ public class BoardImplementation implements PegGame
      }
  
      // Determine the jump location given the start and end locations
-     private Location getJumpedPegLocation(Location from, Location to) {
+     private Location getJumpLocation(Location from, Location to) {
          int jumpRow = (from.getRow() + to.getRow()) / 2;
          int jumpCol = (from.getColumn() + to.getColumn()) / 2;
          return new Location(jumpRow, jumpCol);
@@ -224,5 +222,8 @@ public class BoardImplementation implements PegGame
         for(Move move4 : PossibleMovesAvaliable3){System.out.println(move4);}
 
         GameState gameStateF = game1.getGameState(); System.out.println("The Final Game State: " + gameStateF);
+    }
+    public static char[][] getBoard() {
+        return board;
     }
 }
